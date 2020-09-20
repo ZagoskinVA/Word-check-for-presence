@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Dictionary
 {
@@ -22,7 +23,7 @@ namespace Dictionary
             dictionary[key].Add(value);
         }
         /// <summary>
-        /// 
+        /// Поиск слова в словаре
         /// </summary>
         /// <param name="value">Слово которое надо проверить на наличие в словаре</param>
         /// <returns></returns>
@@ -30,16 +31,17 @@ namespace Dictionary
         {
             var str = StringWithDoubleLetter(value);
             var key = CutString(value);
-            var list = CreateListWord(str).Where(x => x.Length >= key.Length);
             
             List<string> listWords;
             if (dictionary.TryGetValue(key, out listWords))
             {
-                foreach (var word in list)
+                foreach (var word in listWords)
                 {
-                    var result = listWords.FirstOrDefault(x => x == word);
-                    if (result != null)
-                        return result;
+                    // Постройка регулярного выражения для слова из словаря
+                    var regex = BuildRegExp(word);
+                    if (Regex.IsMatch(str, regex))
+                        return word;
+
                 }
             }
             return null;
@@ -69,7 +71,28 @@ namespace Dictionary
             }
             return list;
         }
-
+        //Построение регулярного выражения 
+        //вида hello -> h?e?ll?o?
+        private string BuildRegExp(string value)
+        {
+            string result = "";
+            if (value.Length == 1)
+                return (value + '?');
+            for (int i = 0; i < value.Length-1; i++)
+            {
+                if (value[i] == value[i + 1])
+                    result += value[i];
+                else
+                {
+                    result += value[i];
+                    result += '?';
+                }
+                
+            }
+            result += value.Last();
+            result += '*';
+            return result;
+        }
 
 
 
@@ -89,6 +112,13 @@ namespace Dictionary
                 else
                     str += value[i];
             }
+            if (String.IsNullOrWhiteSpace(str))
+            {
+                str += value[0];
+                return str;
+            }
+
+
             if (str.Last() != value.Last())
                 str += value.Last();
             return str;
@@ -100,7 +130,8 @@ namespace Dictionary
         private string StringWithDoubleLetter(string value)
         {
             string doubleString = "";
-
+            if (value.Length == 1)
+                return value;
             int z = 0;
             for (int i = 0; i < value.Length-1; i++)
             {
