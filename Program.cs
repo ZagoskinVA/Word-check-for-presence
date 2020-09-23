@@ -47,8 +47,7 @@ namespace Dictionary
             }
             Console.WriteLine("Словарь загружен и сохранён в файл dict.dat");
         }
-        // Программа проверяет наличие слова в словаре, если есть повторы некоторых букв, например
-        // hheelllooo -> hello(есть в словаре) boooobbbo -> bobbo или bobo (нет в словаре)
+
 
         static void Main(string[] args)
         {
